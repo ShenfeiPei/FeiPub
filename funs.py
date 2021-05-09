@@ -52,6 +52,9 @@ def load_mat(path, to_dense=True):
 
 
 def makedirs(path):
+    """
+    makedirs if path is not exists
+    """
     if not os.path.exists(path):
         os.makedirs(path)
 
