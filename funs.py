@@ -51,6 +51,11 @@ def load_mat(path, to_dense=True):
     return X, y_true, N, dim, c_true
 
 
+def makedirs(path):
+    if not os.path.exists(path):
+        os.makedirs(path)
+
+
 def save_mat(name_full, xy):
     path, name = os.path.split(name_full)
     if not os.path.exists(path):
