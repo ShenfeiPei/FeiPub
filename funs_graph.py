@@ -3,9 +3,8 @@ import random
 import numpy as np
 from sklearn.cluster import KMeans
 from sklearn.metrics.pairwise import euclidean_distances as EuDist2
-
+from .CppFuns.CppFuns_ import symmetry_py
 from . import funs as Funs
-
 
 def get_anchor(X, m, way="random"):
     """
