@@ -14,15 +14,19 @@ namespace cf{
     template <typename T>
     void symmetry_sub(vector<unordered_map<int, T>> &G, vector<unordered_map<int, T>> &RG, int i, 
                       vector<int> &nn, vector<T> &nnd, bool expand){
+
+        vector<int> ori_nn = nn;
+        vector<T> ori_nnd = nnd;
+
         nn.clear();
         nnd.clear();
 
         int nb;
         T d1, d2;
-        for (auto &ele: G[i]){
+        for (int k = 0; k < ori_nn.size(); k++){
             // i -> nb, dist = d1
-            nb = ele.first;
-            d1 = ele.second;
+            nb = ori_nn[k];
+            d1 = ori_nnd[k];
 
             auto it = G[nb].find(i);
             if (it != G[nb].end()){
