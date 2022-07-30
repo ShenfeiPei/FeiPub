@@ -1,239 +1,139 @@
 #include "CppFuns.h"
 
 namespace cf{
-    void EuDist2(vector<vector<double>> &A, vector<vector<double>> &B, vector<vector<double>> &C){
 
-        int n = A.size();
-        int m = B.size();
-
-        vector<double> anorm(n, 0);
-        square_sum_by_row(A, anorm);
-
-        vector<double> bnorm(m, 0);
-        square_sum_by_row(B, bnorm);
-
-        #pragma omp parallel for
-        for (int k = 0; k < n * m; k++){
-            int i, j;
-            i = k/m;
-            j = k%m;
-            C[i][j] = anorm[i] + bnorm[j] - 2 * inner_product(A[i].begin(), A[i].end(), B[j].begin(), (double) 0);
-        }
+    chrono::time_point<chrono::steady_clock> time_now(){
+        chrono::time_point<chrono::steady_clock> t1 = chrono::steady_clock::now();
+        return t1;
     }
-
-    void EuDist2_byCol(vector<vector<double>> &A, vector<vector<double>> &B, vector<vector<double>> &C){
-
-        int n = A[0].size();
-        int m = B[0].size();
-
-        vector<double> anorm(n, 0);
-        square_sum_by_col(A, anorm);
-
-        vector<double> bnorm(m, 0);
-        square_sum_by_col(B, bnorm);
-
-        #pragma omp parallel for
-        for (int k = 0; k < n * m; k++){
-            int i, j;
-            i = k/m;
-            j = k%m;
-            double tmp_d = 0;
-            for (int l = 0; l < B.size(); l++){
-                tmp_d += A[l][i] * B[l][j];
-            }
-            C[i][j] = anorm[i] + bnorm[j] - 2 * tmp_d;
-        }
-    }
-
-    void EuDist2(vector<vector<double>> &A, vector<double> &anorm, vector<vector<double>> &B, vector<double> &bnorm, vector<vector<double>> &C){
-
-        int n = A.size();
-        int m = B.size();
-
-        #pragma omp parallel for
-        for (int k = 0; k < n * m; k++){
-            int i, j;
-            i = k/m;
-            j = k%m;
-            C[i][j] = anorm[i] + bnorm[j] - 2 * inner_product(A[i].begin(), A[i].end(), B[j].begin(), (double) 0);
-        }
-    }
-
-    void EuDist2(valarray<valarray<double>> &A, valarray<double> &anorm, valarray<valarray<double>> &B, valarray<double> &bnorm, valarray<valarray<double>> &C){
-
-        int n = A.size();
-        int m = B.size();
-
-        #pragma omp parallel for
-        for (int k = 0; k < n * m; k++){
-            int i, j;
-            i = k/m;
-            j = k%m;
-            C[i][j] = anorm[i] + bnorm[j] - 2 * (A[i]*B[j]).sum();
-        }
-    }
-
-    void EuDist2_byCol(vector<vector<double>> &A, vector<double> &anorm, vector<vector<double>> &B, vector<double> &bnorm, vector<vector<double>> &C){
-
-        int n = A[0].size();
-        int m = B[0].size();
-
-        #pragma omp parallel for
-        for (int k = 0; k < n * m; k++){
-            int i, j;
-            i = k/m;
-            j = k%m;
-            double tmp_d = 0;
-            for (int l = 0; l < B.size(); l++){
-                tmp_d += A[l][i] * B[l][j];
-            }
-            C[i][j] = anorm[i] + bnorm[j] - 2 * tmp_d;
-        }
-    }
-
-    void square_sum_by_row(vector<vector<double>> &X, vector<double> &norm){
-
-        #pragma omp parallel for
-        for (int i = 0; i < X.size(); i++){
-            norm[i] = inner_product(X[i].begin(), X[i].end(), X[i].begin(), (double) 0);
-        }
-    }
-
-    void square_sum_by_row(valarray<valarray<double>> &X, valarray<double> &norm){
-
-        #pragma omp parallel for
-        for (int i = 0; i < X.size(); i++){
-            norm[i] = (X[i] * X[i]).sum();
-        }
-    }
-
-    void square_sum_by_col(vector<vector<double>> &X, vector<double> &norm){
-
-        #pragma omp parallel for
-        for (int j = 0; j < X[0].size(); j++){
-            norm[j] = 0;
-            for (int i = 0; i < X.size(); i++){
-                norm[j] += X[i][j] * X[i][j];
-            }
-        }
-    }
-
-    template <typename T, typename U>
-    void argsort_TwoArr(vector<T> &v1, vector<U> &v2, vector<int> &ind){
-        iota(ind.begin(), ind.end(), 0);
-        std::sort(ind.begin(), ind.end(), [&v1, &v2](int i1, int i2){ return v1[i1] < v1[i2] || (v1[i1] < v1[i2] + 1e-8 && v2[i1] > v2[i2]); });
-    }
-    template void argsort_TwoArr<int, int>(vector<int> &v1, vector<int> &v2, vector<int> &ind);
-    template void argsort_TwoArr<double, double>(vector<double> &v1, vector<double> &v2, vector<int> &ind);
-    template void argsort_TwoArr<int, double>(vector<int> &v1, vector<double> &v2, vector<int> &ind);
-    template void argsort_TwoArr<double, int>(vector<double> &v1, vector<int> &v2, vector<int> &ind);
-
-    template <typename T>
-    double median_vec2d(vector<vector<T>> &v){
-        double ret;
-
-        vector<T> v2;
-        for (int i = 0; i < v.size(); i++){
-            for (int j = 0; j < v[i].size(); j++){
-                v2.push_back(v[i][j]);
-            }
-        }
-        std::sort(v2.begin(), v2.end());
-        ret = v2[v2.size()/2];
-
+    double time_diff(chrono::time_point<chrono::steady_clock> t1, chrono::time_point<chrono::steady_clock> t2){
+        double ret = chrono::duration<double>(t2 - t1).count();
         return ret;
-
     }
-    template double median_vec2d<int>(vector<vector<int>> &v);
-    template double median_vec2d<double>(vector<vector<double>> &v);
 
     template <typename T>
-    double median_v(vector<T> &v, int copy){
-        double ret;
-        if (copy==1){
-            vector<T> v_sorted = v;
-            std::sort(v_sorted.begin(), v_sorted.end());
-           // if (n % 2 == 1){
-           //     ret = v_sorted[n/2];
-           // }else{
-           //     ret = (v_sorted[n/2 - 1] + v_sorted[n/2])/2;
-           // }
-            ret = v_sorted[v.size()/2];
-        }else{
-            std::sort(v.begin(), v.end());
-            ret = v[v.size()/2];
-    //        if (n % 2 == 1){
-    //            ret = v[n/2];
-    //        }else{
-    //            ret = (v[n/2 - 1] + v[n/2])/2;
-    //        }
+    void symmetry_sub(vector<unordered_map<int, T>> &G, vector<unordered_map<int, T>> &RG, int i, 
+                      vector<int> &nn, vector<T> &nnd, bool expand){
+        nn.clear();
+        nnd.clear();
+
+        int nb;
+        T d1, d2;
+        for (auto &ele: G[i]){
+            // i -> nb, dist = d1
+            nb = ele.first;
+            d1 = ele.second;
+
+            auto it = G[nb].find(i);
+            if (it != G[nb].end()){
+                // nb -> i, dist = d2
+                d2 = it->second;
+
+                // i-> nb, nb-> i
+                nn.push_back(nb);
+                nnd.push_back((d1 + d2)/((T)2));
+
+            }else if (expand){
+                // i-> nb,   nb !-> i
+                nn.push_back(nb);
+                nnd.push_back(d1);
+            }
         }
-        return ret;
+        if (expand) for (auto ele: RG[i]){
+            // nb -> i, dist = d1
+            nb = ele.first;
+            d1 = ele.second;
 
-    }
-    template double median_v<int>(vector<int> &v, int copy);
-    template double median_v<double>(vector<double> &v, int copy);
-
-    template <typename T>
-    void symmetry(vector<vector<int>> &NN, vector<vector<T>> &NND, int argument, T fill_ele){
-        int N = NN.size();
-        int knn = NN[0].size();
-
-        if (argument == 1){
-            vector<vector<int>> RNN;
-            vector<vector<T>> RNND;
-            RNN.resize(N);
-            RNND.resize(N);
-
-            int tmp_j = 0;
-            double tmp_d = 0;
-            for (int i = 0; i < N; i++){
-                for (int k = 0; k < knn; k++){
-                    tmp_j = NN[i][k];
-                    tmp_d = NND[i][k];
-                    RNN[tmp_j].push_back(i);
-                    RNND[tmp_j].push_back(tmp_d);
-                }
-            }
-
-            vector<bool> flag(N, false);
-            for (int i = 0; i < N; i++){
-                for (auto j : NN[i]){
-                    flag[j] = true;
-                }
-
-                for (int k = 0; k < RNN[i].size(); k++){
-                    tmp_j = RNN[i][k];
-                    if (flag[tmp_j] == false){
-
-                        NN[i].push_back(tmp_j);
-
-                        tmp_d = RNND[i][k];
-                        NND[i].push_back(tmp_d);
-                    }
-                }
-
-                for (int k = 0; k < knn; k++){
-                    tmp_j = NN[i][k];
-                    flag[tmp_j] = false;
-                }
-            }
-        }else{
-            int id = 0;
-            std::vector<int>::iterator it;
-            for (int i = 0; i < N; i++){
-                for (int j = 0; j < NN[i].size(); j++){
-                    id = NN[i][j];
-                    it = std::find(NN[id].begin(), NN[id].end(), i);
-                    if (it == NN[id].end()){
-                        NND[i][j] = fill_ele;
-                    }
-                }
+            auto it = G[i].find(nb);
+            if (it == G[i].end()){
+                // nb -> i, i !-> nb
+                nn.push_back(nb);
+                nnd.push_back(d1);
             }
         }
     }
-    template void symmetry<int>(vector<vector<int>> &NN, vector<vector<int>> &NND, int argument, int fill_ele);
-    template void symmetry<double>(vector<vector<int>> &NN, vector<vector<double>> &NND, int argument, double fill_ele);
+    template void symmetry_sub<float>(vector<unordered_map<int, float>> &G, vector<unordered_map<int, float>> &RG, int i, 
+                                      vector<int> &nn, vector<float> &nnd, bool expand);
+    template void symmetry_sub<double>(vector<unordered_map<int, double>> &G, vector<unordered_map<int, double>> &RG, int i, 
+                                      vector<int> &nn, vector<double> &nnd, bool expand);
+
+    template <typename T>
+    KNN_Graph<T> symmetry(vector<vector<int>> &NN, vector<vector<T>> &NND, bool expand){
+        int nb;
+
+        vector<unordered_map<int, T>> G;
+        vector<unordered_map<int, T>> RG;
+
+        G.resize(NN.size());
+        for (unsigned int i = 0; i < NN.size(); i++){
+            for (unsigned int k = 0; k < NN[i].size(); k++){
+                nb = NN[i][k];
+                G[i][nb] = NND[i][k];
+            }
+        }
+        if (expand){
+            RG.resize(NN.size());
+            for (unsigned int i = 0; i < NN.size(); i++){
+                for (unsigned int k = 0; k < NN[i].size(); k++){
+                    nb = NN[i][k];
+                    RG[nb][i] = NND[i][k];
+                }
+            }
+        }
+
+        #pragma omp parallel for
+        for (unsigned int i = 0; i < NN.size(); i++){
+            symmetry_sub(G, RG, i, NN[i], NND[i], expand);
+        }
+
+        KNN_Graph<T> tmp;
+        tmp.NN = NN;
+        tmp.Val = NND;
+        return tmp;
+    }
+    template KNN_Graph<float> symmetry<float>(vector<vector<int>> &NN, vector<vector<float>> &NND, bool expand);
+    template KNN_Graph<double> symmetry<double>(vector<vector<int>> &NN, vector<vector<double>> &NND, bool expand);
+
+    // convert distance to similarity
+    void knn_graph_tfree_sub(vector<double> &d, vector<double> &val, double d_max){
+        transform(d.begin(), d.end(), val.begin(), [d_max](double di){return d_max - di;});
+        double s = accumulate(val.begin(), val.end(), (double) 0);
+        if (s > 1e-6){
+            transform(val.begin(), val.end(), val.begin(), [s](double vi){return vi/s;});
+        }else{
+            fill(val.begin(), val.end(), 1.0/val.size());
+        }
+    }
+
+    void check_NN(vector<vector<int>> &NN, bool self_include){
+        for (unsigned int i = 0; i < NN.size(); i++){
+            if (self_include && NN[i][0] != i){
+                cout << "NN is not eligible" << endl;
+                exit(EXIT_FAILURE);
+            }
+            if (!self_include){
+                if (NN[i][0] == i){
+                    auto it = NN[i].begin();
+                    NN[i].erase(it);
+                    // cout << "NN is not eligible" << endl;
+                    // exit(EXIT_FAILURE);
+                }
+            }
+        }
+    }
+
+    KNN_Graph<double> knn_graph_tfree(vector<vector<int>> &NN, vector<vector<double>> &NND, vector<double> &NND_k, bool expand){
+
+        check_NN(NN, false);
+
+        vector<vector<double>> Val = NND;
+        #pragma omp parallel for
+        for (unsigned int i = 0; i < NND.size(); i++){
+            knn_graph_tfree_sub(NND[i], Val[i], NND_k[i]);
+        }
+        KNN_Graph<double> G = symmetry(NN, Val, expand);
+        return G;
+    }
 
     template<typename T>
     void read_2Dvec(std::string name, unsigned int K, std::vector<std::vector<T>> &M){
@@ -270,10 +170,26 @@ namespace cf{
     template void show_2Dvec<int>(std::vector<std::vector<int>> &Vec, unsigned int n, unsigned int m);
     template void show_2Dvec<double>(std::vector<std::vector<double>> &Vec, unsigned int n, unsigned int m);
 
+    template<typename T>
+    void show_vec(vector<T> &Vec, unsigned int n){
+        unsigned int N = Vec.size();
+        if (n > N) cout << "n must be less or equal than N." << endl;
+
+        for (unsigned int i = 0; i < n; i++){
+            cout << Vec[i] << ", ";
+        }
+        cout << endl;
+    }
+    template void show_vec<int>(vector<int> &Vec, unsigned int n);
+    template void show_vec<float>(vector<float> &Vec, unsigned int n);
+    template void show_vec<double>(vector<double> &Vec, unsigned int n);
+
+
 
     template<typename T>
     void argsort_f(vector<T> &v, vector<int> &ind){
-        for (int i = 0; i < v.size(); i++) ind[i] = i;
+        std::iota(ind.begin(), ind.end(), 0);
+        // for (int i = 0; i < v.size(); i++) ind[i] = i;
         std::sort(ind.begin(), ind.end(), [&v](int i1, int i2){ return v[i1] < v[i2]; });
     }
     template void argsort_f<int>(vector<int> &v, vector<int> &ind);

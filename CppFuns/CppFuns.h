@@ -8,35 +8,40 @@
 #include <algorithm>
 #include <functional>
 #include <numeric>
+#include <chrono>
+#include <map>
+#include <set>
+#include <unordered_map>
+#include <unordered_set>
+
 
 using namespace std;
 
 namespace cf{
-    void EuDist2(vector<vector<double>> &A, vector<vector<double>> &B, vector<vector<double>> &C);
 
-    void EuDist2(vector<vector<double>> &A, vector<double> &anorm, vector<vector<double>> &B, vector<double> &bnorm, vector<vector<double>> &C);
+    template<typename T>
+    struct KNN_Graph{
+        vector<vector<int>> NN;
+        vector<vector<T>> Val;
+        // vector<vector<double>> A;
+    };
 
-    void EuDist2(valarray<valarray<double>> &A, valarray<double> &anorm, valarray<valarray<double>> &B, valarray<double> &bnorm, valarray<valarray<double>> &C);
-
-    void EuDist2_byCol(vector<vector<double>> &A, vector<vector<double>> &B, vector<vector<double>> &C);
-
-    void EuDist2_byCol(vector<vector<double>> &A, vector<double> &anorm, vector<vector<double>> &B, vector<double> &bnorm, vector<vector<double>> &C);
-
-    void square_sum_by_row(vector<vector<double>> &X, vector<double> &norm);
-    void square_sum_by_row(valarray<valarray<double>> &X, valarray<double> &norm);
-    void square_sum_by_col(vector<vector<double>> &X, vector<double> &norm);
-
-    template <typename T, typename U>
-    void argsort_TwoArr(vector<T> &v1, vector<U> &v2, vector<int> &ind);
+    chrono::time_point<chrono::steady_clock> time_now();
+    double time_diff(chrono::time_point<chrono::steady_clock> t1, chrono::time_point<chrono::steady_clock> t2);
 
     template <typename T>
-    double median_vec2d(vector<vector<T>> &v);
+    void symmetry_sub(vector<unordered_map<int, T>> &G, vector<unordered_map<int, T>> &RG, int i, 
+                      vector<int> &nn, vector<T> &nnd, bool expand);
 
     template <typename T>
-    double median_v(vector<T> &v, int copy);
+    KNN_Graph<T> symmetry(vector<vector<int>> &NN, vector<vector<T>> &NND, bool expand);
 
-    template <typename T>
-    void symmetry(vector<vector<int>> &NN, vector<vector<T>> &NND, int argument, T fill_ele);
+    void check_NN(vector<vector<int>> &NN, bool self_include);
+
+    KNN_Graph<double> knn_graph_tfree(vector<vector<int>> &NN, vector<vector<double>> &NND, vector<double> &NND_k, bool expand);
+
+    template<typename T>
+    void show_vec(vector<T> &Vec, unsigned int n);
 
     template<typename T>
     void read_2Dvec(std::string name, unsigned int K, std::vector<std::vector<T>> &M);

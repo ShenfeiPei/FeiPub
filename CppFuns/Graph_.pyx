@@ -2,9 +2,6 @@ cimport numpy as np
 import numpy as np
 np.import_array()
 
-from IDEAL_NPU import funs as Ifuns
-
-
 from .Graph_ cimport Graph
 
 cdef class PyGraph:

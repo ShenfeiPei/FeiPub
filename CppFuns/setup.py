@@ -1,11 +1,24 @@
 import os
 import numpy
 from Cython.Build import cythonize
-from FeiPub import cg
 
 
 def configuration(parent_package='', top_path=None):
     from numpy.distutils.misc_util import Configuration
+
+    cpp_version = "c++11"
+    if os.name == "nt":
+        ext_comp_args = ['/']
+        ext_link_args = []
+
+        library_dirs = []
+        libraries = []
+    else:
+        ext_comp_args = ['-fopenmp', f'-std={cpp_version}']
+        ext_link_args = ['-fopenmp', f'-std={cpp_version}']
+        library_dirs = []
+        libraries = ["m"]
+    define_macros=[("NPY_NO_DEPRECATED_API", "NPY_1_7_API_VERSION")]
 
     config = Configuration('CppFuns', parent_package, top_path)
     config.add_extension('Graph_',
@@ -13,13 +26,13 @@ def configuration(parent_package='', top_path=None):
                          include_dirs = [numpy.get_include()],
                          language="c++",
 
-                         extra_compile_args=cg.ext_comp_args,
-                         extra_link_args=cg.ext_link_args,
+                         extra_compile_args=ext_comp_args,
+                         extra_link_args=ext_link_args,
 
-                         library_dirs=cg.library_dirs,
-                         libraries=cg.libraries,
+                         library_dirs=library_dirs,
+                         libraries=libraries,
 
-                         define_macros=cg.define_macros,
+                         define_macros=define_macros,
                          )
 
     config.add_extension('Keep_order_',
@@ -27,13 +40,27 @@ def configuration(parent_package='', top_path=None):
                          include_dirs=[numpy.get_include()],
                          language="c++",
 
-                         extra_compile_args=cg.ext_comp_args,
-                         extra_link_args=cg.ext_link_args,
+                         extra_compile_args=ext_comp_args,
+                         extra_link_args=ext_link_args,
 
-                         library_dirs=cg.library_dirs,
-                         libraries=cg.library_dirs,
+                         library_dirs=library_dirs,
+                         libraries=library_dirs,
 
-                         define_macros=cg.define_macros,
+                         define_macros=define_macros,
+                         )
+
+    config.add_extension('CppFuns_',
+                         sources=['CppFuns_.pyx'],
+                         include_dirs=[numpy.get_include()],
+                         language="c++",
+
+                         extra_compile_args=ext_comp_args,
+                         extra_link_args=ext_link_args,
+
+                         library_dirs=library_dirs,
+                         libraries=library_dirs,
+
+                         define_macros=define_macros,
                          )
 
     config.ext_modules = cythonize(config.ext_modules, compiler_directives={'language_level': 3})

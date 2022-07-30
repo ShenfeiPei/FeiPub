@@ -10,6 +10,23 @@ from sklearn.metrics import adjusted_rand_score as ari_ori
 from sklearn.metrics import adjusted_mutual_info_score as ami_ori
 from sklearn.metrics import normalized_mutual_info_score as nmi_ori
 
+from . import Funs
+
+def multi_kmeans_obj(X, Y):
+    ret = np.array([kmeans_obj(X, y_pred) for y_pred in Y])
+    return ret
+
+def kmeans_obj(X, y_pred, c_true):
+    c = len(np.unique(y_pred))
+    if c < c_true:
+        return -1
+    else:
+        Y = Funs.y2Y(y_pred, c_true)
+        nc_inv = np.diag(1/np.diag(Y.T @ Y))
+        cen = nc_inv @ Y.T @ X  # center = cxd
+        obj = np.linalg.norm(X - Y @ cen, "fro")
+        obj *= obj
+    return obj
 
 def precision(y_true, y_pred):
     assert (len(y_pred) == len(y_true))
