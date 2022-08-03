@@ -178,6 +178,7 @@ def relabel(y, offset=0):
     for yi, ind in ind_dict.items():
         y[ind] = offset
         offset += 1
+    return y
 
 
 def normalize_fea(fea, row):
