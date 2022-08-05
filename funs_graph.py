@@ -4,6 +4,7 @@ import numpy as np
 from sklearn.cluster import KMeans
 from sklearn.metrics.pairwise import euclidean_distances as EuDist2
 from .CppFuns.CppFuns_ import symmetry_py
+from .CppFuns.CppFuns_ import knn_graph_tfree_py
 from . import funs as Funs
 
 def get_anchor(X, m, way="random"):
@@ -47,6 +48,9 @@ def knn_f(X, knn, squared=True, self_include=True):
         NN = NN_full[:, 1:(knn+1)]
 
     NND = Funs.matrix_index_take(D_full, NN)
+
+    NN = NN.astype(np.int32)
+    NND = NND.astype(np.float64)
 
     t_end = time.time()
     t = t_end - t_start

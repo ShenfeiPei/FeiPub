@@ -38,9 +38,9 @@ def plot_bar(Y, labels, fname, barWidth=0.3, ra=0.5, addy=10):
     # plt.savefig("/home/pei/Hm.C.pdf", dpi=300, bbox_inches=mt.Bbox([[-0.1, -0.1], [6.5, 4.9]]))
     plt.show()
 
-def scatter(X, y, dpi=300, fname=None, show=True):
+def scatter(X, y, dpi=300, fname=None, show=True, makersize=16):
     plt.figure(figsize=(6.4, 4.8))
-    plt.scatter(X[:, 0], X[:, 1], c=y, s=12)
+    plt.scatter(X[:, 0], X[:, 1], c=y, s=makersize)
     plt.xticks([])
     plt.yticks([])
     plt.subplots_adjust(top=1, bottom=0, right=1, left=0, hspace=0, wspace=0)
